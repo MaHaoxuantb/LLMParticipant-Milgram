@@ -243,11 +243,29 @@ def next_response(state):
 # ---------- Trial Runner ----------
 
 class MilgramSimulator:
-    def __init__(self, llm_teacher: LLMClient, llm_experimenter: Optional[LLMClient] = None, *, debug: bool = False, stream: bool = False):
+    def __init__(self, llm_teacher: LLMClient, llm_experimenter: Optional[LLMClient] = None, *, debug: bool = False, stream: bool = False, memory: str = "none", memory_last_n: int = 5):
         self.teacher = llm_teacher
         self.experimenter = llm_experimenter or llm_teacher
         self.debug = debug
         self.stream = stream
+        # memory: "none" | "summary". When enabled, we add a compact context of recent turns to each Teacher prompt.
+        self.memory = memory
+        self.memory_last_n = max(1, int(memory_last_n)) if memory != "none" else 0
+
+    def _make_context_summary(self, logs: List[TurnLog], last_n: int = 5) -> str:
+        """
+        Build a compact textual summary of the last N turns to provide persistent context to the Teacher.
+        Only includes turns where the Teacher decision was requested/logged.
+        """
+        if not logs or last_n <= 0:
+            return ""
+        recent = logs[-last_n:]
+        lines = []
+        for t in recent:
+            prod = t.prod_used if t.prod_used else "-"
+            # e.g., 10:150V prod=Please continue. -> continue
+            lines.append(f"{t.switch_index}:{t.shock_level}V prod={prod} -> {t.teacher_decision}")
+        return "Context (previous turns, latest last):\n" + "\n".join(lines) + "\n"
 
     def run_trial(self, cfg: TrialConfig) -> TrialResult:
         random.seed(cfg.seed)
@@ -315,7 +333,8 @@ class MilgramSimulator:
 
             # Build Teacher call
             sys_prompt = teacher_system_prompt(cfg.factors.proximity)
-            user_prompt = peer_msg + "\n" + teacher_user_prompt(shock, q["q"], q["a"], reaction, prod)
+            context = self._make_context_summary(logs, self.memory_last_n) if self.memory != "none" else ""
+            user_prompt = peer_msg + ("\n" + context if context else "\n") + teacher_user_prompt(shock, q["q"], q["a"], reaction, prod)
 
             if self.debug:
                 print("[Teacher SYSTEM PROMPT]")
@@ -410,11 +429,13 @@ class MilgramSimulator:
                     # After prod, ask Teacher ONCE more for this balk
                     if self.debug:
                         print("[Teacher (after prod) RESPONSE stream]" if self.stream else "[Teacher (after prod) RESPONSE]", flush=True)
+                    # Recompute context now that we've logged the prod usage
+                    context2 = self._make_context_summary(logs, self.memory_last_n) if self.memory != "none" else ""
                     if self.stream:
                         teacher_text2, _ = self.teacher.generate_stream(
                             system=sys_prompt,
                             messages=[{"role": "user",
-                                       "content": teacher_user_prompt(shock, q["q"], q["a"], reaction, use_prod)}],
+                                       "content": (context2 if context2 else "") + teacher_user_prompt(shock, q["q"], q["a"], reaction, use_prod)}],
                             max_tokens=128
                         )
                         teacher_json2 = teacher_text2
@@ -422,7 +443,7 @@ class MilgramSimulator:
                         teacher_json2 = self.teacher.generate(
                             system=sys_prompt,
                             messages=[{"role": "user",
-                                       "content": teacher_user_prompt(shock, q["q"], q["a"], reaction, use_prod)}],
+                                       "content": (context2 if context2 else "") + teacher_user_prompt(shock, q["q"], q["a"], reaction, use_prod)}],
                             max_tokens=128
                         )
                         print(teacher_json2, flush=True)
