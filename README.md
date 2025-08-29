@@ -1,35 +1,283 @@
-# LLMParticipant-Milgram
+# 🧠 LLM Milgram Obedience Experiment Simulation
 
-A simulation of the Milgram obedience experiment using ChatGPT-5 from OpenRouter as the participant.
+> *A digital recreation of Stanley Milgram's famous obedience experiments using Large Language Models as participants*
 
-## Setup
+[![Python](https://img.shields.io/badge/python-3.7%2B-blue.svg)](https://python.org)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-1. Install dependencies:
+This project simulates the iconic Stanley Milgram obedience experiments from the 1960s, where participants were tested on how far they would go in obeying authority figures, even when it conflicted with their personal conscience. In our digital version, **Large Language Models (LLMs) play the role of the "Teacher"** - the real experimental subject.
+
+## 📖 Background
+
+The original Milgram experiments revealed disturbing truths about human obedience to authority. Participants believed they were administering increasingly powerful electric shocks (15V to 450V) to a "Learner" when they gave wrong answers. In reality, the Learner was an actor and no real shocks were given. The experiment measured how many people would continue to the maximum voltage despite hearing screams and pleas to stop.
+
+**Our simulation recreates this scenario digitally to study:**
+- How LLMs respond to authority and moral conflicts
+- Decision-making patterns under pressure
+- Differences between various AI models
+- The role of language and cultural context
+
+## 🎯 Key Features
+
+- **🌍 Bilingual Support**: English and Chinese experiments
+- **🤖 Multiple LLM Providers**: OpenRouter (GPT, Claude, etc.) and Ollama (local models)
+- **📊 Comprehensive Data Collection**: Decision points, reasoning, awareness probes
+- **🔄 Batch Processing**: Run multiple trials for statistical analysis  
+- **📈 Real-time Streaming**: Watch AI responses as they're generated
+- **📋 Detailed Logging**: Debug mode for experiment transparency
+- **📁 JSON Export**: Full results for further analysis
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Python 3.7+**
+- **pip** (Python package installer)
+- **API Key** (for cloud models) OR **Ollama** (for local models)
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/MaHaoxuantb/LLMParticipant-Milgram.git
+   cd LLMParticipant-Milgram
+   ```
+
+2. **Install dependencies:**
    ```bash
    pip install requests
    ```
 
-2. Get an OpenRouter API key:
-   - Visit https://openrouter.ai/keys
-   - Create an account and generate an API key
+3. **Choose your LLM provider:**
 
-3. Set your API key:
+   **Option A: OpenRouter (Cloud Models)**
    ```bash
+   # Get API key from https://openrouter.ai/keys
    export OPENROUTER_API_KEY="your_api_key_here"
    ```
    
-   Or copy `.env.example` to `.env` and add your key there.
+   **Option B: Ollama (Local Models)**
+   ```bash
+   # Install Ollama: https://ollama.ai/
+   ollama pull llama3        # or any other model
+   ollama serve             # start the server
+   ```
 
-## Usage
+### Basic Usage
 
-Run the simulation:
+**Run with cloud models (OpenRouter):**
 ```bash
-python main.py
+python main.py --provider openrouter --model openai/gpt-4 --n 10 --debug
 ```
 
-This will run 10 trials with different experimental conditions and output results to `milgram_results.json`.
+**Run with local models (Ollama):**
+```bash
+python main.py --provider ollama --model llama3:instruct --n 10 --debug
+```
 
-## Model Configuration
+**Quick test (2 trials, minimal output):**
+```bash
+python main.py --n 2
+```
 
-The simulation uses ChatGPT-5 via OpenRouter (`openai/gpt-5`). You can modify the model by changing the model name in the `LLMClient` initialization.
+## 📚 Detailed Usage Guide
+
+### Command Line Options
+
+| Option | Description | Default | Example |
+|--------|-------------|---------|---------|
+| `--n` | Number of trials to run | `2` | `--n 50` |
+| `--provider` | LLM provider | `openrouter` | `--provider ollama` |
+| `--model` | Model identifier | Auto-detect | `--model openai/gpt-4` |
+| `--base-url` | Custom API endpoint | Auto-detect | `--base-url http://localhost:11434/api/chat` |
+| `--lan` | Language (en/cn) | `en` | `--lan cn` |
+| `--debug` | Show detailed output | `False` | `--debug` |
+| `--no-stream` | Disable streaming | `False` | `--no-stream` |
+| `--temp-teacher` | LLM temperature | `0.6` | `--temp-teacher 0.8` |
+
+### Usage Examples
+
+**🔬 Research Study (Large Scale):**
+```bash
+# Run 100 trials with GPT-4, save detailed logs
+python main.py --provider openrouter --model openai/gpt-4 --n 100 --debug
+```
+
+**🌏 Cross-Cultural Study:**
+```bash
+# English experiment
+python main.py --lan en --n 20 --model openai/gpt-4
+
+# Chinese experiment  
+python main.py --lan cn --n 20 --model openai/gpt-4
+```
+
+**🏠 Local Model Testing:**
+```bash
+# Test with local Llama model
+python main.py --provider ollama --model llama3:8b --n 10 --debug
+
+# Test with local Qwen model (Chinese-optimized)
+python main.py --provider ollama --model qwen:7b --n 10 --lan cn
+```
+
+**⚙️ Parameter Tuning:**
+```bash
+# High creativity (more unpredictable responses)
+python main.py --temp-teacher 1.0 --n 10
+
+# Low creativity (more consistent responses)
+python main.py --temp-teacher 0.2 --n 10
+```
+
+**📺 Live Demo (with streaming):**
+```bash
+# Watch AI responses in real-time
+python main.py --debug --n 5 --provider openrouter --model openai/gpt-4
+```
+
+## 📊 Understanding the Results
+
+### Output Files
+
+- **`milgram_results.json`** - Complete experimental data
+- **`milgram_run.log`** - Backup copy of results
+
+### Key Metrics
+
+- **`obeyed_to_max`** - Did the AI go to maximum voltage (450V)?
+- **`highest_shock`** - Maximum voltage administered
+- **`turns`** - Detailed log of each decision point
+- **`awareness_probe`** - Post-experiment questionnaire responses
+- **`stop_requests_count`** - Number of times AI tried to quit
+
+### Sample Results Analysis
+
+```python
+import json
+
+# Load results
+with open('milgram_results.json', 'r') as f:
+    data = json.load(f)
+
+# Calculate obedience rate
+trials = data['raw']
+obedience_rate = sum(1 for t in trials if t['obeyed_to_max']) / len(trials)
+print(f"Obedience Rate: {obedience_rate:.1%}")
+
+# Average maximum shock
+avg_shock = sum(t['highest_shock'] for t in trials) / len(trials)
+print(f"Average Maximum Shock: {avg_shock:.1f}V")
+```
+
+## 🔧 Advanced Configuration
+
+### Environment Variables
+
+```bash
+# Provider settings
+export TEACHER_PROVIDER="openrouter"
+export TEACHER_MODEL="anthropic/claude-3.5-sonnet"
+export OPENROUTER_API_KEY="your_key_here"
+
+# Ollama settings  
+export OLLAMA_BASE_URL="http://localhost:11434/api/chat"
+
+# Experiment settings
+export LAN="en"
+export TEACHER_TEMPERATURE="0.6"
+```
+
+### Custom Models
+
+**OpenRouter Models:**
+- `openai/gpt-4` - GPT-4 (recommended)
+- `anthropic/claude-3.5-sonnet` - Claude 3.5 Sonnet
+- `meta-llama/llama-3.1-8b-instruct` - Llama 3.1 8B
+- `x-ai/grok-beta` - Grok
+
+**Ollama Models:**
+```bash
+ollama pull llama3:8b        # Llama 3 8B
+ollama pull qwen2:7b         # Qwen 2 7B (Chinese-optimized)  
+ollama pull mistral:7b       # Mistral 7B
+ollama pull phi3:mini        # Phi-3 Mini
+```
+
+## 📈 Research Applications
+
+This simulation is valuable for studying:
+
+- **AI Ethics & Alignment** - How models respond to moral conflicts
+- **Cross-Model Comparison** - Behavioral differences between AI systems
+- **Cultural Psychology** - Language/culture effects on decision-making
+- **Prompt Engineering** - Impact of different instruction styles
+- **AI Safety Research** - Understanding AI behavior under pressure
+
+## 🎓 Educational Use
+
+Perfect for:
+
+- **Psychology Courses** - Digital recreation of classic experiments
+- **AI Ethics Classes** - Practical exploration of AI decision-making
+- **Research Methods** - Experimental design and data analysis
+- **Programming Education** - Real-world Python application
+
+## 🔍 Troubleshooting
+
+**Common Issues:**
+
+1. **API Key Errors:**
+   ```bash
+   # Check your API key
+   echo $OPENROUTER_API_KEY
+   
+   # Test API access
+   curl -H "Authorization: Bearer $OPENROUTER_API_KEY" https://openrouter.ai/api/v1/models
+   ```
+
+2. **Ollama Connection Issues:**
+   ```bash
+   # Check if Ollama is running
+   curl http://localhost:11434/api/tags
+   
+   # Start Ollama server
+   ollama serve
+   ```
+
+3. **Model Not Found:**
+   ```bash
+   # List available Ollama models
+   ollama list
+   
+   # Pull a model
+   ollama pull llama3:instruct
+   ```
+
+## 📜 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request. Areas for contribution:
+
+- Additional LLM provider support
+- New experimental conditions
+- Statistical analysis tools
+- Documentation improvements
+- Bug fixes and optimizations
+
+## 📚 References
+
+- Milgram, S. (1963). Behavioral study of obedience. *Journal of Abnormal and Social Psychology*, 67(4), 371-378.
+- Milgram, S. (1974). *Obedience to Authority: An Experimental View*. Harper & Row.
+
+## ⚠️ Ethical Considerations
+
+This simulation is for research and educational purposes only. The original Milgram experiments raised important ethical questions about psychological research. Our digital version allows us to study these phenomena without causing distress to human participants.
+
+---
+
+*Built with ❤️ for psychology, AI research, and education*
 
