@@ -3,7 +3,7 @@
 > *A digital recreation of Stanley Milgram's famous obedience experiments using Large Language Models as participants*
 
 [![Python](https://img.shields.io/badge/python-3.7%2B-blue.svg)](https://python.org)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE)
 
 This project simulates the iconic Stanley Milgram obedience experiments from the 1960s, where participants were tested on how far they would go in obeying authority figures, even when it conflicted with their personal conscience. In our digital version, **Large Language Models (LLMs) play the role of the "Teacher"** - the real experimental subject.
 
@@ -256,7 +256,7 @@ Perfect for:
 
 ## 📜 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU General Public License v3.0 (GPL-3.0) — see the [LICENSE](LICENSE) file for details.
 
 ## 🤝 Contributing
 
