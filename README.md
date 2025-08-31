@@ -280,7 +280,6 @@ Contributions are welcome! Please feel free to submit a Pull Request. Areas for 
 
 This simulation is for research and educational purposes only. The original Milgram experiments raised important ethical questions about psychological research. Our digital version allows us to study these phenomena without causing distress to human participants.
 
+
 ---
-
-*Built with ❤️ for psychology, AI research, and education*
-
+All Rights Reserved, LinecoFlow Research Team
