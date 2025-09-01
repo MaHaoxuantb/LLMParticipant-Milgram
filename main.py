@@ -1076,8 +1076,8 @@ class MilgramSimulator:
                     # still refusing → next prod (if any)
                     last_decision, last_reason = decision2, reason2
 
-                # After Prod 4, if still refusing → finalize (end session)
-                if logs and logs[-1].teacher_decision != "continue":
+                # After all prods are used, if the teacher still refuses, end the trial.
+                if decision2 != "continue":
                     return self._finalize(cfg, logs)
 
             else:
