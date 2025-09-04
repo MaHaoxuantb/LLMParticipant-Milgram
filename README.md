@@ -48,7 +48,7 @@ The original Milgram experiments revealed disturbing truths about human obedienc
 
 2. **Install dependencies:**
    ```bash
-   pip install requests
+   pip install requirements.txt
    ```
 
 3. **Choose your LLM provider:**
